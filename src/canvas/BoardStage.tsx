@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Stage, Layer, Line, Circle, Rect, Text, Group, Shape } from 'react-konva';
 import { useStore } from '../state/store';
-import { analyze } from '../domain/connectivity';
-import { worldPins, bodyRect, rotatedSize, toRenderX, holeKey } from '../domain/geometry';
+import { analyze, wireLayers } from '../domain/connectivity';
+import { worldPins, bodyRect, toRenderX, holeKey, orthogonalize, orthoElbow, dragSegment, segmentsOf, nearestSegmentIndex } from '../domain/geometry';
 import { colName, PIN_TYPE_COLORS } from '../util';
 import { Hole } from '../domain/types';
 
@@ -30,13 +30,25 @@ const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v
 
 export default function BoardStage() {
   const [wrapRef, size] = useElementSize();
+  const wireGrab = useRef<{ seg: number; start: Hole } | null>(null);
   const s = useStore();
   const board = s.workspace.boards.find((b) => b.id === s.currentBoardId);
   const library = s.workspace.library;
+  const pitch = s.workspace.settings.pitchMm || 2.54;
   const { rootByHole, issues } = useMemo(
-    () => (board ? analyze(board, library) : { rootByHole: new Map(), issues: [] }),
-    [board, library]
+    () => (board ? analyze(board, library, pitch) : { rootByHole: new Map(), issues: [] }),
+    [board, library, pitch]
   );
+  // Board holes occupied by a module pin — a wire that reaches one should terminate.
+  const pinHoleSet = useMemo(() => {
+    const set = new Set<string>();
+    if (board)
+      for (const m of board.modules) {
+        const def = library.find((d) => d.id === m.defId);
+        if (def) for (const wp of worldPins(m, def)) set.add(holeKey(wp.col, wp.row));
+      }
+    return set;
+  }, [board, library]);
 
   if (!board) {
     return <div ref={wrapRef} style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center', color: '#64748b' }}>
@@ -76,7 +88,15 @@ export default function BoardStage() {
     if (!h) return;
     switch (s.tool) {
       case 'select': if (e.target === stage && !e.evt.shiftKey) s.setSelection([]); break;
-      case 'wire': if (!s.wireDraft) s.startWire(h, board.activeSide); else s.addWirePoint(h); break;
+      case 'wire':
+        if (!s.wireDraft) {
+          s.startWire(h, board.activeSide);
+        } else {
+          s.addWirePoint(h);
+          // Reaching a pin ends the wire (a pin is normally a terminal), then back to Select.
+          if (pinHoleSet.has(holeKey(h.col, h.row))) { s.finishWire(); s.setTool('select'); }
+        }
+        break;
       case 'rail-power': s.railClick(h, 'power'); break;
       case 'rail-ground': s.railClick(h, 'ground'); break;
       case 'io-in': s.addIO(h, 'input'); break;
@@ -99,12 +119,45 @@ export default function BoardStage() {
     }
   };
 
-  // ---- draft wire polyline ----
+  // ---- draft wire polyline (orthogonal preview incl. the live hover segment) ----
   const draftPoints: number[] = [];
   if (s.wireDraft) {
-    for (const p of s.wireDraft.points) draftPoints.push(rx(p.col), p.row);
-    if (s.hoverHole) draftPoints.push(rx(s.hoverHole.col), s.hoverHole.row);
+    const chain = s.hoverHole ? [...s.wireDraft.points, s.hoverHole] : s.wireDraft.points;
+    for (const p of orthogonalize(chain)) draftPoints.push(rx(p.col), p.row);
   }
+
+  // ---- wire layering view: which layer each active-side track is in ----
+  const layers = useMemo(
+    () => (board && s.layerView ? wireLayers(board, board.activeSide) : []),
+    [board, s.layerView]
+  );
+  const layerView = s.layerView && layers.length > 0;
+  const curLayerIdx = Math.min(s.layerIndex, Math.max(0, layers.length - 1));
+  const layerOf = useMemo(() => {
+    const m = new Map<string, number>();
+    layers.forEach((ids, i) => ids.forEach((id) => m.set(id, i)));
+    return m;
+  }, [layers]);
+
+  // ---- live drag: pins of the module being dragged, in DATA holes ----
+  const dragging = s.drag;
+  const dragPinKeys = new Set<string>();
+  if (dragging) {
+    const dm = board.modules.find((m) => m.id === dragging.id);
+    const dd = dm ? defOf(dm.defId) : undefined;
+    if (dm && dd) for (const wp of worldPins(dm, dd)) dragPinKeys.add(holeKey(wp.col, wp.row));
+  }
+  // Re-route a track's connected endpoints to follow a live drag (display only).
+  const livePoints = (t: typeof board.tracks[number]) => {
+    if (!dragging || dragPinKeys.size === 0 || t.points.length < 2) return t.points;
+    const a = t.points[0], z = t.points[t.points.length - 1];
+    const aMove = dragPinKeys.has(holeKey(a.col, a.row));
+    const zMove = dragPinKeys.has(holeKey(z.col, z.row));
+    if (!aMove && !zMove) return t.points;
+    const na = aMove ? { col: a.col + dragging.dx, row: a.row + dragging.dy } : a;
+    const nz = zMove ? { col: z.col + dragging.dx, row: z.row + dragging.dy } : z;
+    return orthoElbow(na, nz);
+  };
 
   const boardBg = board.type === 'pad-per-hole' ? '#0f766e' : '#0e7a5f';
 
@@ -162,8 +215,25 @@ export default function BoardStage() {
         {/* Tracks & rails */}
         <Layer>
           {board.tracks.map((t) => {
+            // In layer view: only the active side is soldered; hide the other.
+            // Current layer solid; earlier (already-soldered) layers dim; later
+            // layers faintest — so you see the stack order at a glance.
+            let layerFactor = 1;
+            if (layerView) {
+              if (t.side !== board.activeSide) return null;
+              const li = layerOf.get(t.id);
+              if (li == null) return null;
+              layerFactor = li === curLayerIdx ? 1 : li < curLayerIdx ? 0.22 : 0.07;
+            }
             const pts: number[] = [];
-            for (const p of t.points) pts.push(rx(p.col), p.row);
+            // Render every track as orthogonal (H/V) even if older data stored a
+            // diagonal. While a module is dragged, its connected endpoints follow
+            // live; while THIS wire's segment is dragged, preview the new route.
+            const wd = s.wireDrag && s.wireDrag.id === t.id ? s.wireDrag : null;
+            const displayPts = wd
+              ? dragSegment(t.points, wd.seg, { col: wd.dx, row: wd.dy })
+              : orthogonalize(livePoints(t));
+            for (const p of displayPts) pts.push(rx(p.col), p.row);
             const ghost = t.side !== board.activeSide;
             const root = t.points[0] ? rootByHole.get(holeKey(t.points[0].col, t.points[0].row)) : undefined;
             const hot = hoveredRoot !== undefined && root === hoveredRoot;
@@ -172,13 +242,39 @@ export default function BoardStage() {
             return (
               <Line key={t.id} points={pts}
                 stroke={selected ? '#2563eb' : color}
-                strokeWidth={(t.rail ? 0.34 : 0.17) * (hot ? 1.7 : 1)}
-                opacity={ghost ? 0.28 : 1}
-                dash={ghost ? [0.4, 0.3] : undefined}
+                strokeWidth={(t.rail ? 0.34 : 0.17) * (hot ? 1.7 : 1) * (selected ? 2 : 1)}
+                opacity={(ghost && !selected ? 0.28 : 1) * layerFactor}
+                dash={ghost && !selected ? [0.4, 0.3] : undefined}
                 lineCap="round" lineJoin="round"
                 hitStrokeWidth={0.7}
-                shadowColor={hot ? '#fde047' : undefined} shadowBlur={hot ? 8 : 0}
+                shadowColor={selected ? '#2563eb' : hot ? '#fde047' : undefined} shadowBlur={selected ? 10 : hot ? 8 : 0}
+                // Drag anywhere along the wire to move that segment; terminals on
+                // pins stay put and new joints are inserted (KiCad-style).
+                draggable={s.tool === 'select' && layerFactor === 1}
+                listening={layerFactor === 1}
                 onClick={(e) => { if (s.tool === 'select') { e.cancelBubble = true; s.toggleSelect(t.id, e.evt.shiftKey); } }}
+                onDragStart={(e) => {
+                  e.cancelBubble = true;
+                  const h = pointerHole(e.target.getStage());
+                  wireGrab.current = h ? { seg: nearestSegmentIndex(t.points, h), start: h } : null;
+                  s.setSelection([t.id]);
+                }}
+                onDragMove={(e) => {
+                  e.target.position({ x: 0, y: 0 }); // hold the node; preview via state
+                  const h = pointerHole(e.target.getStage());
+                  const g = wireGrab.current;
+                  if (!h || !g || g.seg < 0) return;
+                  const sg = segmentsOf(t.points).find((x) => x.i === g.seg);
+                  if (!sg) return;
+                  const raw = { col: h.col - g.start.col, row: h.row - g.start.row };
+                  const d = sg.orient === 'h' ? { col: 0, row: raw.row } : { col: raw.col, row: 0 };
+                  s.setWireDrag({ id: t.id, seg: g.seg, dx: d.col, dy: d.row });
+                }}
+                onDragEnd={(e) => {
+                  e.target.position({ x: 0, y: 0 });
+                  const w = s.wireDrag; s.setWireDrag(null); wireGrab.current = null;
+                  if (w && w.id === t.id) s.commitWireDrag(t.id, w.seg, w.dx, w.dy);
+                }}
               />
             );
           })}
@@ -189,31 +285,43 @@ export default function BoardStage() {
           {board.modules.map((m) => {
             const def = defOf(m.defId);
             if (!def) return null;
-            const br = bodyRect(m, def);
+            const br = bodyRect(m, def, pitch);
             const bx = rx(flipped ? br.x + br.w : br.x); // left edge in render space
             const selected = s.selection.includes(m.id);
-            const size2 = rotatedSize(def, m.rotation);
             return (
-              <Group key={m.id} x={0} y={0}
-                draggable={s.tool === 'select' && !flipped}
+              <Group key={m.id}
+                draggable={s.tool === 'select'}
                 onDragStart={(e) => { e.cancelBubble = true; s.setSelection([m.id]); }}
-                onDragMove={(e) => { const n = e.target; n.x(Math.round(n.x())); n.y(Math.round(n.y())); }}
+                onDragMove={(e) => {
+                  // Snap the dragged group to the hole grid and publish the delta
+                  // in DATA holes so connected wires follow live. Render X is
+                  // mirrored on the track side, so invert dx when flipped.
+                  const n = e.target; const rdx = Math.round(n.x()); const rdy = Math.round(n.y());
+                  n.x(rdx); n.y(rdy);
+                  s.setDrag({ id: m.id, dx: flipped ? -rdx : rdx, dy: rdy });
+                }}
                 onDragEnd={(e) => {
-                  const n = e.target; const dx = Math.round(n.x()); const dy = Math.round(n.y());
+                  const n = e.target; const rdx = Math.round(n.x()); const rdy = Math.round(n.y());
                   n.position({ x: 0, y: 0 });
-                  if (dx || dy) s.moveModule(m.id, m.col + dx, m.row + dy);
+                  s.setDrag(null);
+                  const dx = flipped ? -rdx : rdx;
+                  if (dx || rdy) s.moveModule(m.id, m.col + dx, m.row + rdy);
                 }}
                 onClick={(e) => { if (s.tool === 'select') { e.cancelBubble = true; s.toggleSelect(m.id, e.evt.shiftKey); } }}
               >
+                {/* On the track side, only the border grabs the module (fill is
+                    non-listening) so wires inside its bounds stay draggable. */}
                 <Rect x={bx} y={br.y} width={br.w} height={br.h} cornerRadius={0.18}
                   fill={flipped ? undefined : def.color} opacity={flipped ? 1 : 0.9}
+                  fillEnabled={!flipped}
+                  hitStrokeWidth={flipped ? 0.6 : undefined}
                   stroke={selected ? '#2563eb' : flipped ? '#334155' : '#1e293b'}
                   strokeWidth={selected ? 0.12 : 0.05}
                   dash={flipped ? [0.35, 0.25] : undefined} />
                 {worldPins(m, def).map((wp) => {
                   const on = matches(wp.col, wp.row);
                   return (
-                    <Group key={wp.pin.id}>
+                    <Group key={wp.pin.id} listening={!flipped}>
                       {on && <Circle x={rx(wp.col)} y={wp.row} radius={0.42} stroke="#facc15" strokeWidth={0.1} />}
                       <Circle x={rx(wp.col)} y={wp.row} radius={0.27}
                         fill={PIN_TYPE_COLORS[wp.pin.type] || '#94a3b8'} stroke="#0b3d2e" strokeWidth={0.04} />
@@ -230,7 +338,7 @@ export default function BoardStage() {
                 <Text x={bx} y={br.y + br.h / 2 + 0.12} width={br.w} align="center"
                   text={m.labelOverride || def.name} fontSize={0.34}
                   fill={flipped ? '#94a3b8' : 'rgba(255,255,255,0.85)'} listening={false}
-                  visible={size2.cols >= 2} />
+                  visible={br.w >= 1.8} />
               </Group>
             );
           })}

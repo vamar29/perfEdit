@@ -5,6 +5,11 @@ const KEY = 'perfEdit.workspace.v1';
 
 export function loadWorkspace(): Workspace | null {
   try {
+    // ?fresh=1 gives a deterministic empty workspace (used by agents/tests).
+    if (typeof location !== 'undefined' && new URLSearchParams(location.search).get('fresh') === '1') {
+      localStorage.removeItem(KEY);
+      return null;
+    }
     const s = localStorage.getItem(KEY);
     if (!s) return null;
     const ws = JSON.parse(s);
@@ -57,5 +62,5 @@ export function makeDefaultWorkspace(): Workspace {
     id: uid(), name: 'Board 1', type: 'perfboard', cols: 30, rows: 20, activeSide: 'top',
     modules: [], tracks: [], io: [], annotations: [], nets: [], createdAt: t, updatedAt: t,
   };
-  return { schemaVersion: 1, library: [dip, hdr], boards: [board], settings: { pitchMm: 2.54, defaultBoardType: 'perfboard' } };
+  return { schemaVersion: 1, library: [dip, hdr], boards: [board], settings: { pitchMm: 2.54, defaultBoardType: 'perfboard' }, loadedDesigns: [] };
 }

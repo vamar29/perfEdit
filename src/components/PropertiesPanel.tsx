@@ -20,6 +20,10 @@ export default function PropertiesPanel() {
       {mod && def && (
         <div className="section">
           <div className="row"><label>Module</label><span>{def.name}</span></div>
+          {def.bodyMm && (
+            <div className="row"><label>Body</label><span>{def.bodyMm.w} × {def.bodyMm.h} mm</span></div>
+          )}
+          {def.notes && <div className="hint" style={{ whiteSpace: 'pre-wrap' }}>{def.notes}</div>}
           <div className="row">
             <label>Designator</label>
             <input type="text" value={mod.designator}

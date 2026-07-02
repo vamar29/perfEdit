@@ -18,14 +18,30 @@ export interface Pin {
   label?: string;
 }
 
+/**
+ * Physical body outline in millimetres, relative to the CENTER of hole (0,0)
+ * of the module's pin grid (unrotated). Most real modules are larger than the
+ * grid their pins land on; this rectangle is what actually occupies the board.
+ * dx/dy are usually negative (body extends up/left past pin 0,0).
+ */
+export interface BodyMm {
+  w: number;              // body width, mm (along cols at rotation 0)
+  h: number;              // body height, mm (along rows at rotation 0)
+  dx: number;             // body left edge relative to hole (0,0) center, mm
+  dy: number;             // body top edge relative to hole (0,0) center, mm
+}
+
 export interface ModuleDefinition {
   id: Id;
   name: string;
-  cols: number;           // footprint bounding box, in holes
+  cols: number;           // pin-grid bounding box, in holes
   rows: number;
   pins: Pin[];
   designatorPrefix: string;
   color: string;
+  bodyMm?: BodyMm;        // physical outline; when absent the body hugs the pin grid
+  mayOverhang?: boolean;  // edge connectors etc. — suppresses the board-edge overhang warning
+  notes?: string;         // datasheet caveats, approximations, purchase info
   createdAt: number;
   updatedAt: number;
 }
@@ -98,4 +114,5 @@ export interface Workspace {
   library: ModuleDefinition[];
   boards: Board[];
   settings: Settings;
+  loadedDesigns?: string[];   // bundled-design files already auto-imported at startup (import-once)
 }

@@ -1,0 +1,2285 @@
+{
+  "schemaVersion": 1,
+  "library": [
+    {
+      "id": "def_d24v90f5",
+      "name": "Pololu D24V90F5 5V/9A buck",
+      "designatorPrefix": "U",
+      "color": "#3b82f6",
+      "cols": 16,
+      "rows": 8,
+      "bodyMm": {
+        "w": 40.6,
+        "h": 20.3,
+        "dx": -1.25,
+        "dy": -1.2599999999999998
+      },
+      "notes": "Pololu #2866, ~$37 (OOS/rationed 2026 — see doc §0). In 5–38V → 5V ±4% @ ~9A, synchronous. Reverse-V, OCP, thermal, soft-start, UVLO. FITS the board and the 26mm bay. Pad positions approximate.",
+      "pins": [
+        {
+          "id": "p_VIN_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "power",
+          "name": "VIN",
+          "label": "20V"
+        },
+        {
+          "id": "p_GND_0_7",
+          "col": 0,
+          "row": 7,
+          "type": "ground",
+          "name": "GND"
+        },
+        {
+          "id": "p_VOUT_15_0",
+          "col": 15,
+          "row": 0,
+          "type": "output",
+          "name": "VOUT",
+          "label": "5.0V"
+        },
+        {
+          "id": "p_GND2_15_7",
+          "col": 15,
+          "row": 7,
+          "type": "ground",
+          "name": "GND2"
+        },
+        {
+          "id": "p_EN_6_7",
+          "col": 6,
+          "row": 7,
+          "type": "input",
+          "name": "EN"
+        },
+        {
+          "id": "p_PG_9_7",
+          "col": 9,
+          "row": 7,
+          "type": "output",
+          "name": "PG"
+        }
+      ]
+    },
+    {
+      "id": "def_d36v50f6",
+      "name": "Pololu D36V50F6 6V/5.5A buck",
+      "designatorPrefix": "U",
+      "color": "#8b5cf6",
+      "cols": 6,
+      "rows": 1,
+      "bodyMm": {
+        "w": 25.4,
+        "h": 25.4,
+        "dx": -6.35,
+        "dy": -22.9
+      },
+      "notes": "Pololu #4092, ~$25 (OOS at Pololu 2026). In 6.5–50V → 6V @ 5.5A. Terminal row along one edge; body extends up from it. FITS the board and the bay.",
+      "pins": [
+        {
+          "id": "p_PG_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "output",
+          "name": "PG"
+        },
+        {
+          "id": "p_EN_1_0",
+          "col": 1,
+          "row": 0,
+          "type": "input",
+          "name": "EN"
+        },
+        {
+          "id": "p_VIN_2_0",
+          "col": 2,
+          "row": 0,
+          "type": "power",
+          "name": "VIN",
+          "label": "20V"
+        },
+        {
+          "id": "p_VRP_3_0",
+          "col": 3,
+          "row": 0,
+          "type": "passive",
+          "name": "VRP"
+        },
+        {
+          "id": "p_VOUT_4_0",
+          "col": 4,
+          "row": 0,
+          "type": "output",
+          "name": "VOUT",
+          "label": "6.0V"
+        },
+        {
+          "id": "p_GND_5_0",
+          "col": 5,
+          "row": 0,
+          "type": "ground",
+          "name": "GND"
+        }
+      ]
+    },
+    {
+      "id": "def_xl4016",
+      "name": "XL4016E1 8A buck (cost-down)",
+      "designatorPrefix": "U",
+      "color": "#ef4444",
+      "cols": 12,
+      "rows": 2,
+      "bodyMm": {
+        "w": 61,
+        "h": 41,
+        "dx": -16.53,
+        "dy": -19.23
+      },
+      "notes": "Doc §0 cost-down pick (~$3.6–7.6, one 2-pack does both bucks; saves ~$50). BUT 61×41×27mm — DOES NOT FIT the 50×70 board OR the 26mm bay (27mm tall), and uses screw terminals, not 0.1in pins. Shown for size comparison. For the perfboard build use the Pololu (placed) or the DROK 6A sync.",
+      "pins": [
+        {
+          "id": "p_IN+_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "power",
+          "name": "IN+",
+          "label": "4-40V"
+        },
+        {
+          "id": "p_IN-_0_1",
+          "col": 0,
+          "row": 1,
+          "type": "ground",
+          "name": "IN-"
+        },
+        {
+          "id": "p_OUT+_11_0",
+          "col": 11,
+          "row": 0,
+          "type": "output",
+          "name": "OUT+"
+        },
+        {
+          "id": "p_OUT-_11_1",
+          "col": 11,
+          "row": 1,
+          "type": "ground",
+          "name": "OUT-"
+        }
+      ]
+    },
+    {
+      "id": "def_tps61088",
+      "name": "TPS61088 boost (ADJ→4.85V)",
+      "designatorPrefix": "U",
+      "color": "#f59e0b",
+      "cols": 3,
+      "rows": 16,
+      "bodyMm": {
+        "w": 21,
+        "h": 40,
+        "dx": -7.96,
+        "dy": -0.9499999999999993
+      },
+      "notes": "21×40mm generic board, ~$4–8. In 2.7–12V; ~3.7A cont @5V from a 3.0V cell (18.9W). Leave 5/9/12V pads OPEN, set ADJ to measured-buck −0.15V (≈4.85V). Stick-on heatsink, 5mm clearance.",
+      "pins": [
+        {
+          "id": "p_VIN+_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "power",
+          "name": "VIN+",
+          "label": "from P+"
+        },
+        {
+          "id": "p_VIN-_2_0",
+          "col": 2,
+          "row": 0,
+          "type": "ground",
+          "name": "VIN-"
+        },
+        {
+          "id": "p_VOUT+_0_15",
+          "col": 0,
+          "row": 15,
+          "type": "output",
+          "name": "VOUT+",
+          "label": "4.85V"
+        },
+        {
+          "id": "p_VOUT-_2_15",
+          "col": 2,
+          "row": 15,
+          "type": "ground",
+          "name": "VOUT-"
+        }
+      ]
+    },
+    {
+      "id": "def_ada4410",
+      "name": "Adafruit 4410 charger (MCP73831)",
+      "designatorPrefix": "U",
+      "color": "#06b6d4",
+      "cols": 3,
+      "rows": 2,
+      "bodyMm": {
+        "w": 22.9,
+        "h": 17.8,
+        "dx": -8.91,
+        "dy": -7.630000000000001
+      },
+      "notes": "adafruit.com/product/4410, $7. Feed 5V via the 5V pad (NOT the USB-C jack; abs-max ~6V). CLOSE the jumper = 500mA. STAT = solder a fine wire to the CHG-LED node.",
+      "pins": [
+        {
+          "id": "p_5V_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "power",
+          "name": "5V",
+          "label": "from buck"
+        },
+        {
+          "id": "p_GND_1_0",
+          "col": 1,
+          "row": 0,
+          "type": "ground",
+          "name": "GND"
+        },
+        {
+          "id": "p_BAT_2_0",
+          "col": 2,
+          "row": 0,
+          "type": "output",
+          "name": "BAT",
+          "label": "to P+"
+        },
+        {
+          "id": "p_STAT_0_1",
+          "col": 0,
+          "row": 1,
+          "type": "output",
+          "name": "STAT",
+          "label": "LED tap"
+        }
+      ]
+    },
+    {
+      "id": "def_xl74610",
+      "name": "XL74610 ideal diode (LM74610)",
+      "designatorPrefix": "D",
+      "color": "#64748b",
+      "cols": 8,
+      "rows": 4,
+      "bodyMm": {
+        "w": 22,
+        "h": 12,
+        "dx": -2.1099999999999994,
+        "dy": -2.19
+      },
+      "notes": "Amazon 5-pack ~$11. 1.5–36V, 15A, ~3mΩ. Two-terminal ideal diode: IN+→OUT+ blocks reverse; IN-/OUT- common. Body diode conducts instantly on handover.",
+      "pins": [
+        {
+          "id": "p_IN+_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "passive",
+          "name": "IN+"
+        },
+        {
+          "id": "p_IN-_0_3",
+          "col": 0,
+          "row": 3,
+          "type": "ground",
+          "name": "IN-"
+        },
+        {
+          "id": "p_OUT+_7_0",
+          "col": 7,
+          "row": 0,
+          "type": "passive",
+          "name": "OUT+"
+        },
+        {
+          "id": "p_OUT-_7_3",
+          "col": 7,
+          "row": 3,
+          "type": "ground",
+          "name": "OUT-"
+        }
+      ]
+    },
+    {
+      "id": "def_pcm1s",
+      "name": "1S PCM 8A (DW01 + dual 8205)",
+      "designatorPrefix": "U",
+      "color": "#10b981",
+      "cols": 15,
+      "rows": 2,
+      "bodyMm": {
+        "w": 40,
+        "h": 7,
+        "dx": -2.219999999999999,
+        "dy": -2.23
+      },
+      "notes": "\"1S 3.7V 8A BMS\", ~$2. OV 4.28V / UV ~2.5V (fire backstop) / OC ~8A. MUST be the dual-FET 8A variant. B±=cell, P±=system. Bench-verify trip once.",
+      "pins": [
+        {
+          "id": "p_B+_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "passive",
+          "name": "B+",
+          "label": "cell+"
+        },
+        {
+          "id": "p_B-_0_1",
+          "col": 0,
+          "row": 1,
+          "type": "ground",
+          "name": "B-",
+          "label": "cell-"
+        },
+        {
+          "id": "p_P+_14_0",
+          "col": 14,
+          "row": 0,
+          "type": "passive",
+          "name": "P+",
+          "label": "sys+"
+        },
+        {
+          "id": "p_P-_14_1",
+          "col": 14,
+          "row": 1,
+          "type": "ground",
+          "name": "P-",
+          "label": "sys-"
+        }
+      ]
+    },
+    {
+      "id": "def_xt30",
+      "name": "XT30PW right-angle",
+      "designatorPrefix": "J",
+      "color": "#dc2626",
+      "cols": 1,
+      "rows": 3,
+      "bodyMm": {
+        "w": 10.5,
+        "h": 16,
+        "dx": -5.25,
+        "dy": -3
+      },
+      "mayOverhang": true,
+      "notes": "15A keyed connector, PCB right-angle. + / − on 5.08mm (2-hole) pitch; shroud overhangs the board edge by design. ~$8 / 6 pairs.",
+      "pins": [
+        {
+          "id": "p_+_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "passive",
+          "name": "+"
+        },
+        {
+          "id": "p_-_0_2",
+          "col": 0,
+          "row": 2,
+          "type": "passive",
+          "name": "-"
+        }
+      ]
+    },
+    {
+      "id": "def_jstxh4",
+      "name": "JST-XH 4-pin",
+      "designatorPrefix": "J",
+      "color": "#d97706",
+      "cols": 4,
+      "rows": 1,
+      "bodyMm": {
+        "w": 12.9,
+        "h": 5.8,
+        "dx": -2.64,
+        "dy": -2.9
+      },
+      "mayOverhang": true,
+      "notes": "SENSE bundle up the pass-through, 26AWG.",
+      "pins": [
+        {
+          "id": "p_1_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "passive",
+          "name": "1"
+        },
+        {
+          "id": "p_2_1_0",
+          "col": 1,
+          "row": 0,
+          "type": "passive",
+          "name": "2"
+        },
+        {
+          "id": "p_3_2_0",
+          "col": 2,
+          "row": 0,
+          "type": "passive",
+          "name": "3"
+        },
+        {
+          "id": "p_4_3_0",
+          "col": 3,
+          "row": 0,
+          "type": "passive",
+          "name": "4"
+        }
+      ]
+    },
+    {
+      "id": "def_jstxh2",
+      "name": "JST-XH 2-pin",
+      "designatorPrefix": "J",
+      "color": "#d97706",
+      "cols": 2,
+      "rows": 1,
+      "bodyMm": {
+        "w": 7.9,
+        "h": 5.8,
+        "dx": -2.68,
+        "dy": -2.9
+      },
+      "mayOverhang": true,
+      "notes": "0.5A-class interconnect.",
+      "pins": [
+        {
+          "id": "p_1_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "passive",
+          "name": "1"
+        },
+        {
+          "id": "p_2_1_0",
+          "col": 1,
+          "row": 0,
+          "type": "passive",
+          "name": "2"
+        }
+      ]
+    },
+    {
+      "id": "def_capD13",
+      "name": "Electrolytic Ø13 (5mm LS)",
+      "designatorPrefix": "C",
+      "color": "#334155",
+      "cols": 1,
+      "rows": 3,
+      "bodyMm": {
+        "w": 13,
+        "h": 13,
+        "dx": -6.5,
+        "dy": -3.96
+      },
+      "notes": "1000µF/35V bus cap. + pin marked.",
+      "pins": [
+        {
+          "id": "p_+_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "passive",
+          "name": "+"
+        },
+        {
+          "id": "p_-_0_2",
+          "col": 0,
+          "row": 2,
+          "type": "passive",
+          "name": "-"
+        }
+      ]
+    },
+    {
+      "id": "def_capD10",
+      "name": "Electrolytic Ø10 low-ESR (5mm LS)",
+      "designatorPrefix": "C",
+      "color": "#475569",
+      "cols": 1,
+      "rows": 3,
+      "bodyMm": {
+        "w": 10,
+        "h": 10,
+        "dx": -5,
+        "dy": -2.46
+      },
+      "notes": "Panasonic FR 2200µF/10V (ORing node) or 1000µF/10V (boost input).",
+      "pins": [
+        {
+          "id": "p_+_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "passive",
+          "name": "+"
+        },
+        {
+          "id": "p_-_0_2",
+          "col": 0,
+          "row": 2,
+          "type": "passive",
+          "name": "-"
+        }
+      ]
+    },
+    {
+      "id": "def_res",
+      "name": "Resistor 1/4W axial",
+      "designatorPrefix": "R",
+      "color": "#b45309",
+      "cols": 4,
+      "rows": 1,
+      "bodyMm": {
+        "w": 9,
+        "h": 3,
+        "dx": -0.69,
+        "dy": -1.5
+      },
+      "pins": [
+        {
+          "id": "p_1_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "passive",
+          "name": "1"
+        },
+        {
+          "id": "p_2_3_0",
+          "col": 3,
+          "row": 0,
+          "type": "passive",
+          "name": "2"
+        }
+      ]
+    },
+    {
+      "id": "def_cap100n",
+      "name": "Ceramic 100nF",
+      "designatorPrefix": "C",
+      "color": "#0ea5e9",
+      "cols": 2,
+      "rows": 1,
+      "bodyMm": {
+        "w": 5,
+        "h": 3.2,
+        "dx": -1.23,
+        "dy": -1.6
+      },
+      "pins": [
+        {
+          "id": "p_1_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "passive",
+          "name": "1"
+        },
+        {
+          "id": "p_2_1_0",
+          "col": 1,
+          "row": 0,
+          "type": "passive",
+          "name": "2"
+        }
+      ]
+    },
+    {
+      "id": "def_led3",
+      "name": "LED 3mm",
+      "designatorPrefix": "D",
+      "color": "#22c55e",
+      "cols": 2,
+      "rows": 1,
+      "bodyMm": {
+        "w": 3.8,
+        "h": 4.2,
+        "dx": -0.6299999999999999,
+        "dy": -2.1
+      },
+      "pins": [
+        {
+          "id": "p_A_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "passive",
+          "name": "A"
+        },
+        {
+          "id": "p_K_1_0",
+          "col": 1,
+          "row": 0,
+          "type": "passive",
+          "name": "K"
+        }
+      ]
+    },
+    {
+      "id": "def_trim",
+      "name": "Trimpot 3296W 200k",
+      "designatorPrefix": "RV",
+      "color": "#a855f7",
+      "cols": 3,
+      "rows": 1,
+      "bodyMm": {
+        "w": 9.5,
+        "h": 4.8,
+        "dx": -2.21,
+        "dy": -2.4
+      },
+      "notes": "Sets boost ADJ ≈ measured buck −0.15V. Wire wiper+end as a rheostat.",
+      "pins": [
+        {
+          "id": "p_1_0_0",
+          "col": 0,
+          "row": 0,
+          "type": "passive",
+          "name": "1"
+        },
+        {
+          "id": "p_W_1_0",
+          "col": 1,
+          "row": 0,
+          "type": "passive",
+          "name": "W"
+        },
+        {
+          "id": "p_3_2_0",
+          "col": 2,
+          "row": 0,
+          "type": "passive",
+          "name": "3"
+        }
+      ]
+    }
+  ],
+  "boards": [
+    {
+      "id": "pip_boardA",
+      "name": "Pip Power — Board A (rails)",
+      "type": "perfboard",
+      "cols": 36,
+      "rows": 30,
+      "activeSide": "top",
+      "modules": [
+        {
+          "id": "mod_pip_boardA_J1",
+          "defId": "def_xt30",
+          "col": 1,
+          "row": 2,
+          "rotation": 0,
+          "side": "top",
+          "designator": "J1",
+          "labelOverride": "20V_IN"
+        },
+        {
+          "id": "mod_pip_boardA_U1",
+          "defId": "def_d24v90f5",
+          "col": 5,
+          "row": 1,
+          "rotation": 0,
+          "side": "top",
+          "designator": "U1"
+        },
+        {
+          "id": "mod_pip_boardA_C1",
+          "defId": "def_capD13",
+          "col": 23,
+          "row": 2,
+          "rotation": 0,
+          "side": "top",
+          "designator": "C1",
+          "labelOverride": "1000u/35V"
+        },
+        {
+          "id": "mod_pip_boardA_R1",
+          "defId": "def_res",
+          "col": 27,
+          "row": 1,
+          "rotation": 0,
+          "side": "top",
+          "designator": "R1",
+          "labelOverride": "56k"
+        },
+        {
+          "id": "mod_pip_boardA_R2",
+          "defId": "def_res",
+          "col": 27,
+          "row": 3,
+          "rotation": 0,
+          "side": "top",
+          "designator": "R2",
+          "labelOverride": "10k"
+        },
+        {
+          "id": "mod_pip_boardA_R3",
+          "defId": "def_res",
+          "col": 27,
+          "row": 5,
+          "rotation": 0,
+          "side": "top",
+          "designator": "R3",
+          "labelOverride": "10k"
+        },
+        {
+          "id": "mod_pip_boardA_C5",
+          "defId": "def_cap100n",
+          "col": 27,
+          "row": 7,
+          "rotation": 0,
+          "side": "top",
+          "designator": "C5",
+          "labelOverride": "100n"
+        },
+        {
+          "id": "mod_pip_boardA_J6",
+          "defId": "def_jstxh2",
+          "col": 33,
+          "row": 1,
+          "rotation": 0,
+          "side": "top",
+          "designator": "J6",
+          "labelOverride": "5V_CHG"
+        },
+        {
+          "id": "mod_pip_boardA_D1",
+          "defId": "def_xl74610",
+          "col": 2,
+          "row": 12,
+          "rotation": 0,
+          "side": "top",
+          "designator": "D1",
+          "labelOverride": "IDEAL-A"
+        },
+        {
+          "id": "mod_pip_boardA_D2",
+          "defId": "def_xl74610",
+          "col": 12,
+          "row": 12,
+          "rotation": 0,
+          "side": "top",
+          "designator": "D2",
+          "labelOverride": "IDEAL-B"
+        },
+        {
+          "id": "mod_pip_boardA_C2",
+          "defId": "def_capD10",
+          "col": 23,
+          "row": 11,
+          "rotation": 0,
+          "side": "top",
+          "designator": "C2",
+          "labelOverride": "2200u"
+        },
+        {
+          "id": "mod_pip_boardA_C3",
+          "defId": "def_capD10",
+          "col": 28,
+          "row": 11,
+          "rotation": 0,
+          "side": "top",
+          "designator": "C3",
+          "labelOverride": "2200u"
+        },
+        {
+          "id": "mod_pip_boardA_C4",
+          "defId": "def_cap100n",
+          "col": 32,
+          "row": 12,
+          "rotation": 0,
+          "side": "top",
+          "designator": "C4",
+          "labelOverride": "100n"
+        },
+        {
+          "id": "mod_pip_boardA_U2",
+          "defId": "def_d36v50f6",
+          "col": 4,
+          "row": 28,
+          "rotation": 0,
+          "side": "top",
+          "designator": "U2"
+        },
+        {
+          "id": "mod_pip_boardA_D3",
+          "defId": "def_led3",
+          "col": 14,
+          "row": 20,
+          "rotation": 0,
+          "side": "top",
+          "designator": "D3",
+          "labelOverride": "5V"
+        },
+        {
+          "id": "mod_pip_boardA_R4",
+          "defId": "def_res",
+          "col": 14,
+          "row": 22,
+          "rotation": 0,
+          "side": "top",
+          "designator": "R4",
+          "labelOverride": "1k"
+        },
+        {
+          "id": "mod_pip_boardA_D4",
+          "defId": "def_led3",
+          "col": 19,
+          "row": 20,
+          "rotation": 0,
+          "side": "top",
+          "designator": "D4",
+          "labelOverride": "6V"
+        },
+        {
+          "id": "mod_pip_boardA_R5",
+          "defId": "def_res",
+          "col": 19,
+          "row": 22,
+          "rotation": 0,
+          "side": "top",
+          "designator": "R5",
+          "labelOverride": "1k"
+        },
+        {
+          "id": "mod_pip_boardA_J7",
+          "defId": "def_jstxh4",
+          "col": 13,
+          "row": 27,
+          "rotation": 0,
+          "side": "top",
+          "designator": "J7",
+          "labelOverride": "SENSE"
+        },
+        {
+          "id": "mod_pip_boardA_J2",
+          "defId": "def_xt30",
+          "col": 20,
+          "row": 27,
+          "rotation": 0,
+          "side": "top",
+          "designator": "J2",
+          "labelOverride": "6V_OUT"
+        },
+        {
+          "id": "mod_pip_boardA_J3",
+          "defId": "def_xt30",
+          "col": 25,
+          "row": 27,
+          "rotation": 0,
+          "side": "top",
+          "designator": "J3",
+          "labelOverride": "VMOT_20V"
+        },
+        {
+          "id": "mod_pip_boardA_J4",
+          "defId": "def_xt30",
+          "col": 30,
+          "row": 27,
+          "rotation": 0,
+          "side": "top",
+          "designator": "J4",
+          "labelOverride": "5V_OUT"
+        },
+        {
+          "id": "mod_pip_boardA_J5",
+          "defId": "def_xt30",
+          "col": 35,
+          "row": 27,
+          "rotation": 0,
+          "side": "top",
+          "designator": "J5",
+          "labelOverride": "BOOST_IN"
+        }
+      ],
+      "tracks": [
+        {
+          "id": "trk_061",
+          "side": "top",
+          "points": [
+            {
+              "col": 5,
+              "row": 1
+            },
+            {
+              "col": 1,
+              "row": 2
+            }
+          ],
+          "netId": "netA_20v",
+          "color": "#f97316",
+          "rail": true
+        },
+        {
+          "id": "trk_062",
+          "side": "top",
+          "points": [
+            {
+              "col": 1,
+              "row": 2
+            },
+            {
+              "col": 23,
+              "row": 2
+            }
+          ],
+          "netId": "netA_20v",
+          "color": "#f97316",
+          "rail": true
+        },
+        {
+          "id": "trk_063",
+          "side": "top",
+          "points": [
+            {
+              "col": 23,
+              "row": 2
+            },
+            {
+              "col": 27,
+              "row": 1
+            }
+          ],
+          "netId": "netA_20v",
+          "color": "#f97316",
+          "rail": true
+        },
+        {
+          "id": "trk_064",
+          "side": "top",
+          "points": [
+            {
+              "col": 27,
+              "row": 1
+            },
+            {
+              "col": 25,
+              "row": 27
+            }
+          ],
+          "netId": "netA_20v",
+          "color": "#f97316",
+          "rail": true
+        },
+        {
+          "id": "trk_065",
+          "side": "top",
+          "points": [
+            {
+              "col": 25,
+              "row": 27
+            },
+            {
+              "col": 6,
+              "row": 28
+            }
+          ],
+          "netId": "netA_20v",
+          "color": "#f97316",
+          "rail": true
+        },
+        {
+          "id": "trk_066",
+          "side": "top",
+          "points": [
+            {
+              "col": 30,
+              "row": 3
+            },
+            {
+              "col": 28,
+              "row": 7
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_067",
+          "side": "top",
+          "points": [
+            {
+              "col": 28,
+              "row": 7
+            },
+            {
+              "col": 28,
+              "row": 13
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_068",
+          "side": "top",
+          "points": [
+            {
+              "col": 28,
+              "row": 13
+            },
+            {
+              "col": 23,
+              "row": 13
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_069",
+          "side": "top",
+          "points": [
+            {
+              "col": 23,
+              "row": 13
+            },
+            {
+              "col": 19,
+              "row": 15
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_070",
+          "side": "top",
+          "points": [
+            {
+              "col": 19,
+              "row": 15
+            },
+            {
+              "col": 20,
+              "row": 20
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_071",
+          "side": "top",
+          "points": [
+            {
+              "col": 20,
+              "row": 20
+            },
+            {
+              "col": 22,
+              "row": 22
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_072",
+          "side": "top",
+          "points": [
+            {
+              "col": 22,
+              "row": 22
+            },
+            {
+              "col": 17,
+              "row": 22
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_073",
+          "side": "top",
+          "points": [
+            {
+              "col": 17,
+              "row": 22
+            },
+            {
+              "col": 15,
+              "row": 20
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_074",
+          "side": "top",
+          "points": [
+            {
+              "col": 15,
+              "row": 20
+            },
+            {
+              "col": 12,
+              "row": 15
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_075",
+          "side": "top",
+          "points": [
+            {
+              "col": 12,
+              "row": 15
+            },
+            {
+              "col": 9,
+              "row": 15
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_076",
+          "side": "top",
+          "points": [
+            {
+              "col": 9,
+              "row": 15
+            },
+            {
+              "col": 2,
+              "row": 15
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_077",
+          "side": "top",
+          "points": [
+            {
+              "col": 2,
+              "row": 15
+            },
+            {
+              "col": 2,
+              "row": 16
+            },
+            {
+              "col": 5,
+              "row": 16
+            },
+            {
+              "col": 5,
+              "row": 8
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_078",
+          "side": "top",
+          "points": [
+            {
+              "col": 5,
+              "row": 8
+            },
+            {
+              "col": 1,
+              "row": 4
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_079",
+          "side": "top",
+          "points": [
+            {
+              "col": 1,
+              "row": 4
+            },
+            {
+              "col": 23,
+              "row": 4
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_080",
+          "side": "top",
+          "points": [
+            {
+              "col": 23,
+              "row": 4
+            },
+            {
+              "col": 23,
+              "row": 5
+            },
+            {
+              "col": 20,
+              "row": 5
+            },
+            {
+              "col": 20,
+              "row": 8
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_081",
+          "side": "top",
+          "points": [
+            {
+              "col": 20,
+              "row": 8
+            },
+            {
+              "col": 33,
+              "row": 12
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_082",
+          "side": "top",
+          "points": [
+            {
+              "col": 33,
+              "row": 12
+            },
+            {
+              "col": 30,
+              "row": 29
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_083",
+          "side": "top",
+          "points": [
+            {
+              "col": 30,
+              "row": 29
+            },
+            {
+              "col": 25,
+              "row": 29
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_084",
+          "side": "top",
+          "points": [
+            {
+              "col": 25,
+              "row": 29
+            },
+            {
+              "col": 20,
+              "row": 29
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_085",
+          "side": "top",
+          "points": [
+            {
+              "col": 20,
+              "row": 29
+            },
+            {
+              "col": 16,
+              "row": 27
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_086",
+          "side": "top",
+          "points": [
+            {
+              "col": 16,
+              "row": 27
+            },
+            {
+              "col": 16,
+              "row": 26
+            },
+            {
+              "col": 9,
+              "row": 26
+            },
+            {
+              "col": 9,
+              "row": 28
+            }
+          ],
+          "netId": "netA_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_087",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 20,
+              "row": 1
+            },
+            {
+              "col": 33,
+              "row": 1
+            }
+          ],
+          "netId": "netA_5vb",
+          "color": "#fb7185"
+        },
+        {
+          "id": "trk_088",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 33,
+              "row": 1
+            },
+            {
+              "col": 33,
+              "row": 2
+            },
+            {
+              "col": 2,
+              "row": 2
+            },
+            {
+              "col": 2,
+              "row": 12
+            }
+          ],
+          "netId": "netA_5vb",
+          "color": "#fb7185"
+        },
+        {
+          "id": "trk_089",
+          "side": "top",
+          "points": [
+            {
+              "col": 23,
+              "row": 11
+            },
+            {
+              "col": 28,
+              "row": 11
+            }
+          ],
+          "netId": "netA_5vr",
+          "color": "#ef4444",
+          "rail": true
+        },
+        {
+          "id": "trk_090",
+          "side": "top",
+          "points": [
+            {
+              "col": 28,
+              "row": 11
+            },
+            {
+              "col": 19,
+              "row": 12
+            }
+          ],
+          "netId": "netA_5vr",
+          "color": "#ef4444",
+          "rail": true
+        },
+        {
+          "id": "trk_091",
+          "side": "top",
+          "points": [
+            {
+              "col": 19,
+              "row": 12
+            },
+            {
+              "col": 9,
+              "row": 12
+            }
+          ],
+          "netId": "netA_5vr",
+          "color": "#ef4444",
+          "rail": true
+        },
+        {
+          "id": "trk_092",
+          "side": "top",
+          "points": [
+            {
+              "col": 9,
+              "row": 12
+            },
+            {
+              "col": 9,
+              "row": 13
+            },
+            {
+              "col": 14,
+              "row": 13
+            },
+            {
+              "col": 14,
+              "row": 20
+            }
+          ],
+          "netId": "netA_5vr",
+          "color": "#ef4444",
+          "rail": true
+        },
+        {
+          "id": "trk_093",
+          "side": "top",
+          "points": [
+            {
+              "col": 14,
+              "row": 20
+            },
+            {
+              "col": 14,
+              "row": 21
+            },
+            {
+              "col": 31,
+              "row": 21
+            },
+            {
+              "col": 31,
+              "row": 27
+            },
+            {
+              "col": 30,
+              "row": 27
+            }
+          ],
+          "netId": "netA_5vr",
+          "color": "#ef4444",
+          "rail": true
+        },
+        {
+          "id": "trk_094",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 12,
+              "row": 12
+            },
+            {
+              "col": 35,
+              "row": 27
+            }
+          ],
+          "netId": "netA_boost",
+          "color": "#ec4899"
+        },
+        {
+          "id": "trk_095",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 19,
+              "row": 20
+            },
+            {
+              "col": 20,
+              "row": 27
+            }
+          ],
+          "netId": "netA_6v",
+          "color": "#8b5cf6",
+          "rail": true
+        },
+        {
+          "id": "trk_096",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 20,
+              "row": 27
+            },
+            {
+              "col": 8,
+              "row": 28
+            }
+          ],
+          "netId": "netA_6v",
+          "color": "#8b5cf6",
+          "rail": true
+        },
+        {
+          "id": "trk_097",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 30,
+              "row": 1
+            },
+            {
+              "col": 30,
+              "row": 0
+            },
+            {
+              "col": 27,
+              "row": 0
+            },
+            {
+              "col": 27,
+              "row": 3
+            }
+          ],
+          "netId": "netA_div",
+          "color": "#84cc16"
+        },
+        {
+          "id": "trk_098",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 27,
+              "row": 3
+            },
+            {
+              "col": 27,
+              "row": 5
+            }
+          ],
+          "netId": "netA_div",
+          "color": "#84cc16"
+        },
+        {
+          "id": "trk_099",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 27,
+              "row": 5
+            },
+            {
+              "col": 27,
+              "row": 7
+            }
+          ],
+          "netId": "netA_div",
+          "color": "#84cc16"
+        },
+        {
+          "id": "trk_100",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 30,
+              "row": 5
+            },
+            {
+              "col": 13,
+              "row": 27
+            }
+          ],
+          "netId": "netA_sense",
+          "color": "#22c55e"
+        },
+        {
+          "id": "trk_101",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 15,
+              "row": 20
+            },
+            {
+              "col": 14,
+              "row": 22
+            }
+          ],
+          "netId": "netA_led5",
+          "color": "#94a3b8"
+        },
+        {
+          "id": "trk_102",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 20,
+              "row": 20
+            },
+            {
+              "col": 20,
+              "row": 19
+            },
+            {
+              "col": 19,
+              "row": 19
+            },
+            {
+              "col": 19,
+              "row": 22
+            }
+          ],
+          "netId": "netA_led6",
+          "color": "#94a3b8"
+        }
+      ],
+      "io": [
+        {
+          "id": "io_037",
+          "kind": "input",
+          "name": "USB-C PD 20V (via trigger+fuse+DPST)",
+          "col": 0,
+          "row": 4
+        },
+        {
+          "id": "io_038",
+          "kind": "output",
+          "name": "5V_CHG -> Board B",
+          "col": 33,
+          "row": 0
+        }
+      ],
+      "annotations": [
+        {
+          "id": "ann_039",
+          "text": "BOARD A - wall & rails. Trigger + 5A fuse + DPST rocker are panel-mounted (off-board).",
+          "col": 0,
+          "row": -1.6,
+          "side": "both",
+          "color": "#0f172a"
+        },
+        {
+          "id": "ann_040",
+          "text": "Real footprints need ~36x30 holes (~91x76mm) - larger than the doc 50x70mm. Options: bigger boards, a 3-board split, or smaller bucks (DROK 6A sync). Re-check vs the O130 bay annulus.",
+          "col": 0,
+          "row": 30.4,
+          "side": "both",
+          "color": "#b91c1c"
+        },
+        {
+          "id": "ann_041",
+          "text": "J6 5V_CHG -> Board B charger; J5 BOOST_IN <- Board B. GND common across both boards.",
+          "col": 0,
+          "row": 31.6,
+          "side": "both",
+          "color": "#334155"
+        }
+      ],
+      "nets": [
+        {
+          "id": "netA_20v",
+          "name": "20V_BUS",
+          "color": "#f97316",
+          "kind": "power"
+        },
+        {
+          "id": "netA_gnd",
+          "name": "GND",
+          "color": "#111827",
+          "kind": "ground"
+        },
+        {
+          "id": "netA_5vb",
+          "name": "5V_BUCK",
+          "color": "#fb7185",
+          "kind": "power"
+        },
+        {
+          "id": "netA_5vr",
+          "name": "5V_RAIL",
+          "color": "#ef4444",
+          "kind": "power"
+        },
+        {
+          "id": "netA_boost",
+          "name": "BOOST_5V",
+          "color": "#ec4899",
+          "kind": "power"
+        },
+        {
+          "id": "netA_6v",
+          "name": "6V_RAIL",
+          "color": "#8b5cf6",
+          "kind": "power"
+        },
+        {
+          "id": "netA_div",
+          "name": "DIV",
+          "color": "#84cc16",
+          "kind": "signal"
+        },
+        {
+          "id": "netA_sense",
+          "name": "WALL_SENSE",
+          "color": "#22c55e",
+          "kind": "signal"
+        },
+        {
+          "id": "netA_led5",
+          "name": "LED5",
+          "color": "#94a3b8",
+          "kind": "signal"
+        },
+        {
+          "id": "netA_led6",
+          "name": "LED6",
+          "color": "#94a3b8",
+          "kind": "signal"
+        }
+      ]
+    },
+    {
+      "id": "pip_boardB",
+      "name": "Pip Power — Board B (battery)",
+      "type": "perfboard",
+      "cols": 26,
+      "rows": 30,
+      "activeSide": "top",
+      "modules": [
+        {
+          "id": "mod_pip_boardB_J1",
+          "defId": "def_xt30",
+          "col": 1,
+          "row": 1,
+          "rotation": 0,
+          "side": "top",
+          "designator": "J1",
+          "labelOverride": "BATT_IN"
+        },
+        {
+          "id": "mod_pip_boardB_U1",
+          "defId": "def_pcm1s",
+          "col": 5,
+          "row": 4,
+          "rotation": 0,
+          "side": "top",
+          "designator": "U1",
+          "labelOverride": "PCM-8A"
+        },
+        {
+          "id": "mod_pip_boardB_U2",
+          "defId": "def_ada4410",
+          "col": 5,
+          "row": 13,
+          "rotation": 0,
+          "side": "top",
+          "designator": "U2",
+          "labelOverride": "CHGR"
+        },
+        {
+          "id": "mod_pip_boardB_U3",
+          "defId": "def_tps61088",
+          "col": 15,
+          "row": 11,
+          "rotation": 0,
+          "side": "top",
+          "designator": "U3",
+          "labelOverride": "BOOST"
+        },
+        {
+          "id": "mod_pip_boardB_C1",
+          "defId": "def_capD10",
+          "col": 23,
+          "row": 11,
+          "rotation": 0,
+          "side": "top",
+          "designator": "C1",
+          "labelOverride": "1000u LE"
+        },
+        {
+          "id": "mod_pip_boardB_RV1",
+          "defId": "def_trim",
+          "col": 21,
+          "row": 25,
+          "rotation": 0,
+          "side": "top",
+          "designator": "RV1",
+          "labelOverride": "200k ADJ"
+        },
+        {
+          "id": "mod_pip_boardB_J2",
+          "defId": "def_xt30",
+          "col": 24,
+          "row": 19,
+          "rotation": 90,
+          "side": "top",
+          "designator": "J2",
+          "labelOverride": "BOOST_5V"
+        },
+        {
+          "id": "mod_pip_boardB_J3",
+          "defId": "def_jstxh2",
+          "col": 1,
+          "row": 21,
+          "rotation": 0,
+          "side": "top",
+          "designator": "J3",
+          "labelOverride": "5V_CHG_IN"
+        },
+        {
+          "id": "mod_pip_boardB_J4",
+          "defId": "def_jstxh2",
+          "col": 1,
+          "row": 24,
+          "rotation": 0,
+          "side": "top",
+          "designator": "J4",
+          "labelOverride": "STAT/GND"
+        }
+      ],
+      "tracks": [
+        {
+          "id": "trk_103",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 1,
+              "row": 1
+            },
+            {
+              "col": 5,
+              "row": 4
+            }
+          ],
+          "netId": "netB_cell",
+          "color": "#eab308",
+          "rail": true
+        },
+        {
+          "id": "trk_104",
+          "side": "top",
+          "points": [
+            {
+              "col": 1,
+              "row": 3
+            },
+            {
+              "col": 5,
+              "row": 5
+            }
+          ],
+          "netId": "netB_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_105",
+          "side": "top",
+          "points": [
+            {
+              "col": 5,
+              "row": 5
+            },
+            {
+              "col": 6,
+              "row": 13
+            }
+          ],
+          "netId": "netB_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_106",
+          "side": "top",
+          "points": [
+            {
+              "col": 6,
+              "row": 13
+            },
+            {
+              "col": 2,
+              "row": 21
+            }
+          ],
+          "netId": "netB_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_107",
+          "side": "top",
+          "points": [
+            {
+              "col": 2,
+              "row": 21
+            },
+            {
+              "col": 2,
+              "row": 24
+            }
+          ],
+          "netId": "netB_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_108",
+          "side": "top",
+          "points": [
+            {
+              "col": 2,
+              "row": 24
+            },
+            {
+              "col": 17,
+              "row": 26
+            }
+          ],
+          "netId": "netB_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_109",
+          "side": "top",
+          "points": [
+            {
+              "col": 17,
+              "row": 26
+            },
+            {
+              "col": 24,
+              "row": 19
+            }
+          ],
+          "netId": "netB_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_110",
+          "side": "top",
+          "points": [
+            {
+              "col": 24,
+              "row": 19
+            },
+            {
+              "col": 23,
+              "row": 13
+            }
+          ],
+          "netId": "netB_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_111",
+          "side": "top",
+          "points": [
+            {
+              "col": 23,
+              "row": 13
+            },
+            {
+              "col": 17,
+              "row": 11
+            }
+          ],
+          "netId": "netB_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_112",
+          "side": "top",
+          "points": [
+            {
+              "col": 17,
+              "row": 11
+            },
+            {
+              "col": 19,
+              "row": 5
+            }
+          ],
+          "netId": "netB_gnd",
+          "color": "#111827",
+          "rail": true
+        },
+        {
+          "id": "trk_113",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 19,
+              "row": 4
+            },
+            {
+              "col": 15,
+              "row": 11
+            }
+          ],
+          "netId": "netB_prot",
+          "color": "#f59e0b",
+          "rail": true
+        },
+        {
+          "id": "trk_114",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 15,
+              "row": 11
+            },
+            {
+              "col": 23,
+              "row": 11
+            }
+          ],
+          "netId": "netB_prot",
+          "color": "#f59e0b",
+          "rail": true
+        },
+        {
+          "id": "trk_115",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 23,
+              "row": 11
+            },
+            {
+              "col": 23,
+              "row": 12
+            },
+            {
+              "col": 7,
+              "row": 12
+            },
+            {
+              "col": 7,
+              "row": 13
+            }
+          ],
+          "netId": "netB_prot",
+          "color": "#f59e0b",
+          "rail": true
+        },
+        {
+          "id": "trk_116",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 5,
+              "row": 13
+            },
+            {
+              "col": 1,
+              "row": 21
+            }
+          ],
+          "netId": "netB_chg",
+          "color": "#14b8a6"
+        },
+        {
+          "id": "trk_117",
+          "side": "top",
+          "points": [
+            {
+              "col": 5,
+              "row": 14
+            },
+            {
+              "col": 1,
+              "row": 24
+            }
+          ],
+          "netId": "netB_stat",
+          "color": "#22c55e"
+        },
+        {
+          "id": "trk_118",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 26,
+              "row": 19
+            },
+            {
+              "col": 23,
+              "row": 25
+            }
+          ],
+          "netId": "netB_boost",
+          "color": "#ec4899",
+          "rail": true
+        },
+        {
+          "id": "trk_119",
+          "side": "bottom",
+          "points": [
+            {
+              "col": 23,
+              "row": 25
+            },
+            {
+              "col": 15,
+              "row": 26
+            }
+          ],
+          "netId": "netB_boost",
+          "color": "#ec4899",
+          "rail": true
+        }
+      ],
+      "io": [
+        {
+          "id": "io_057",
+          "kind": "input",
+          "name": "5V_CHG <- Board A",
+          "col": 0,
+          "row": 19
+        },
+        {
+          "id": "io_058",
+          "kind": "output",
+          "name": "BOOST_5V -> Board A",
+          "col": 25,
+          "row": 20
+        }
+      ],
+      "annotations": [
+        {
+          "id": "ann_059",
+          "text": "BOARD B - battery. LiPo pouch 67x34x6 lies BESIDE the board (Velcro + foam), 7.5A fuse inline in the + lead. Keep the cell >=25mm from any converter.",
+          "col": 0,
+          "row": -1.6,
+          "side": "both",
+          "color": "#b91c1c"
+        }
+      ],
+      "nets": [
+        {
+          "id": "netB_cell",
+          "name": "VBAT_CELL",
+          "color": "#eab308",
+          "kind": "power"
+        },
+        {
+          "id": "netB_prot",
+          "name": "VBAT_PROT",
+          "color": "#f59e0b",
+          "kind": "power"
+        },
+        {
+          "id": "netB_gnd",
+          "name": "GND",
+          "color": "#111827",
+          "kind": "ground"
+        },
+        {
+          "id": "netB_chg",
+          "name": "5V_CHG",
+          "color": "#14b8a6",
+          "kind": "power"
+        },
+        {
+          "id": "netB_boost",
+          "name": "BOOST_5V",
+          "color": "#ec4899",
+          "kind": "power"
+        },
+        {
+          "id": "netB_stat",
+          "name": "CHG_STAT",
+          "color": "#22c55e",
+          "kind": "signal"
+        }
+      ]
+    },
+    {
+      "id": "pip_buckcmp",
+      "name": "Buck fit comparison (50x70mm board)",
+      "type": "perfboard",
+      "cols": 20,
+      "rows": 26,
+      "activeSide": "top",
+      "modules": [
+        {
+          "id": "mod_pip_buckcmp_U1",
+          "defId": "def_d24v90f5",
+          "col": 1,
+          "row": 1,
+          "rotation": 0,
+          "side": "top",
+          "designator": "U1",
+          "labelOverride": "FITS 40x20"
+        },
+        {
+          "id": "mod_pip_buckcmp_U2",
+          "defId": "def_xl4016",
+          "col": 1,
+          "row": 18,
+          "rotation": 0,
+          "side": "top",
+          "designator": "U2",
+          "labelOverride": "XL4016 61x41"
+        }
+      ],
+      "tracks": [],
+      "io": [],
+      "annotations": [
+        {
+          "id": "ann_060",
+          "text": "Both on a real 50x70mm (20x26-hole) protoboard. Pololu D24V90F5 (40.6x20.3mm) drops in. The XL4016E1 cost-down buck (61x41x27mm) overflows the board AND its 27mm height exceeds the 26mm bay - see the overhang flag in Issues.",
+          "col": 0,
+          "row": 0,
+          "side": "both",
+          "color": "#b91c1c"
+        }
+      ],
+      "nets": []
+    }
+  ]
+}

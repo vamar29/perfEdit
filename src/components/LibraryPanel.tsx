@@ -25,7 +25,10 @@ export default function LibraryPanel() {
             <span className="swatch" style={{ background: d.color }} />
             {d.name}
           </div>
-          <div className="meta">{d.cols}×{d.rows} holes · {d.pins.length} pins · {d.designatorPrefix}?</div>
+          <div className="meta">
+            {d.cols}×{d.rows} holes · {d.pins.length} pins · {d.designatorPrefix}?
+            {d.bodyMm ? ` · ${d.bodyMm.w}×${d.bodyMm.h} mm` : ''}
+          </div>
           <div className="actions">
             <button onClick={() => s.editModule(d.id)}>Edit</button>
             <button className="danger" onClick={() => confirm(`Delete "${d.name}"?`) && s.deleteModuleDef(d.id)}>Delete</button>

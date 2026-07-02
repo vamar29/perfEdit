@@ -3,6 +3,9 @@ import {
   Workspace, Board, ModuleDefinition, Hole, Side, PlacedModule, Track, NetKind,
 } from '../domain/types';
 import { loadWorkspace, saveWorkspace, scheduleSave, makeDefaultWorkspace } from './persistence';
+import { validatePayload, mergePayload, ImportPayload, ImportResult } from './io';
+import { worldPins, holeKey, orthoElbow, orthogonalize, dragSegment } from '../domain/geometry';
+import { analyze, wireOverlaps } from '../domain/connectivity';
 import { uid, nextDesignator, expandLine } from '../util';
 
 export type Tool = 'select' | 'wire' | 'rail-power' | 'rail-ground' | 'io-in' | 'io-out' | 'text';
@@ -23,6 +26,14 @@ interface StoreState {
   hoverHole: Hole | null;
   wireDraft: { points: Hole[]; side: Side } | null;
   railStart: Hole | null;
+  // Transient live-drag delta (data holes) while a module is being dragged.
+  // Not persisted / not undoable; the render offsets connected wires by it.
+  drag: { id: string; dx: number; dy: number } | null;
+  // Transient live-drag of a single wire SEGMENT (perpendicular delta).
+  wireDrag: { id: string; seg: number; dx: number; dy: number } | null;
+  // Wire layering view: show solder-order layers one at a time (active side).
+  layerView: boolean;
+  layerIndex: number;
   scale: number;
   panX: number;
   panY: number;
@@ -37,9 +48,21 @@ interface StoreState {
   setView: (v: 'board' | 'designer') => void;
   setCamera: (c: { scale?: number; panX?: number; panY?: number }) => void;
   setHoverHole: (h: Hole | null) => void;
+  setDrag: (d: { id: string; dx: number; dy: number } | null) => void;
+  setWireDrag: (d: { id: string; seg: number; dx: number; dy: number } | null) => void;
+  setLayerView: (v: boolean) => void;
+  setLayerIndex: (i: number) => void;
+  /** Commit a wire-segment drag: move segment `seg` of track `id` by (dx,dy). */
+  commitWireDrag: (id: string, seg: number, dx: number, dy: number) => void;
+  /** Best-effort: shift overlapping wires apart until the overlap DRC is clean. */
+  autoFixOverlaps: () => { fixed: number; remaining: number };
 
   undo: () => void;
   redo: () => void;
+
+  /** Merge a design payload ({library?, boards?}) into the workspace by id. Undoable.
+   *  Pass sourceFile to record it in workspace.loadedDesigns (startup auto-load). */
+  importData: (data: unknown, sourceFile?: string) => ImportResult;
 
   addBoard: () => void;
   selectBoard: (id: string) => void;
@@ -104,6 +127,10 @@ export const useStore = create<StoreState>()((set, get) => {
     hoverHole: null,
     wireDraft: null,
     railStart: null,
+    drag: null,
+    wireDrag: null,
+    layerView: false,
+    layerIndex: 0,
     scale: 24,
     panX: 70,
     panY: 70,
@@ -123,6 +150,52 @@ export const useStore = create<StoreState>()((set, get) => {
     setView: (v) => set({ view: v }),
     setCamera: (c) => set((s) => ({ scale: c.scale ?? s.scale, panX: c.panX ?? s.panX, panY: c.panY ?? s.panY })),
     setHoverHole: (h) => set({ hoverHole: h }),
+    setDrag: (d) => set({ drag: d }),
+    setWireDrag: (d) => set({ wireDrag: d }),
+    setLayerView: (v) => set({ layerView: v, layerIndex: 0, selection: [] }),
+    setLayerIndex: (i) => set({ layerIndex: Math.max(0, i) }),
+    commitWireDrag: (id, seg, dx, dy) =>
+      withBoard((b) => {
+        if (dx === 0 && dy === 0) return;
+        const t = b.tracks.find((x) => x.id === id);
+        if (!t) return;
+        const np = dragSegment(t.points, seg, { col: dx, row: dy });
+        if (np.length >= 2) t.points = np;
+      }),
+    autoFixOverlaps: () => {
+      let result = { fixed: 0, remaining: 0 };
+      withBoard((b, ws) => {
+        const pitch = ws.settings.pitchMm || 2.54;
+        const errCount = () => analyze(b, ws.library, pitch).issues.filter((i) => i.severity === 'error').length;
+        const baseErr = errCount();
+        const pairKey = (o: { aId: string; bId: string }) => [o.aId, o.bId].sort().join('|');
+        const start = wireOverlaps(b).length;
+        const stuck = new Set<string>();
+        for (let iter = 0; iter < 400; iter++) {
+          const ovs = wireOverlaps(b).filter((o) => !stuck.has(pairKey(o)));
+          if (!ovs.length) break;
+          const o = ovs[0];
+          // Shift the *second* track's overlapping segment perpendicular, trying
+          // increasing offsets both ways; keep the first that reduces the total
+          // overlap count without introducing an error (short / pin clash).
+          const t = b.tracks.find((x) => x.id === o.bId)!;
+          const before = wireOverlaps(b).length;
+          let fixed = false;
+          for (const mag of [1, -1, 2, -2, 3, -3, 4, -4, 5, -5]) {
+            const d = o.orient === 'h' ? { col: 0, row: mag } : { col: mag, row: 0 };
+            const cand = dragSegment(t.points, o.bSeg, d);
+            if (cand.length < 2) continue;
+            const saved = t.points;
+            t.points = cand;
+            if (wireOverlaps(b).length < before && errCount() <= baseErr) { fixed = true; break; }
+            t.points = saved;
+          }
+          if (!fixed) stuck.add(pairKey(o));
+        }
+        result = { fixed: start - wireOverlaps(b).length, remaining: wireOverlaps(b).length };
+      });
+      return result;
+    },
 
     undo: () =>
       set((s) => {
@@ -146,6 +219,18 @@ export const useStore = create<StoreState>()((set, get) => {
         scheduleSave(ws);
         return { workspace: ws, past, future: s.future.slice(0, -1) };
       }),
+
+    importData: (data, sourceFile) => {
+      const errors = validatePayload(data, get().workspace.library);
+      if (errors.length) return { ok: false, errors, libraryIds: [], boardIds: [] };
+      let ids = { libraryIds: [] as string[], boardIds: [] as string[] };
+      commit((ws) => {
+        ids = mergePayload(ws, data as ImportPayload);
+        if (sourceFile) ws.loadedDesigns = Array.from(new Set([...(ws.loadedDesigns ?? []), sourceFile]));
+      });
+      if (ids.boardIds.length) set({ currentBoardId: ids.boardIds[0], selection: [] });
+      return { ok: true, errors: [], ...ids };
+    },
 
     addBoard: () => {
       const id = uid();
@@ -215,7 +300,30 @@ export const useStore = create<StoreState>()((set, get) => {
       );
       set({ selection: [id], tool: 'select' });
     },
-    moveModule: (id, col, row) => withBoard((b) => { const m = b.modules.find((m) => m.id === id); if (m) { m.col = col; m.row = row; } }),
+    // Move a module and drag any wires attached to its pins along with it:
+    // each track endpoint sitting on one of the module's pins shifts by the
+    // same delta, and the track re-routes as a clean orthogonal elbow so the
+    // connection is preserved with 90° corners (KiCad-style).
+    moveModule: (id, col, row) => withBoard((b, ws) => {
+      const m = b.modules.find((m) => m.id === id);
+      if (!m) return;
+      const dx = col - m.col, dy = row - m.row;
+      if (dx === 0 && dy === 0) return;
+      const def = ws.library.find((d) => d.id === m.defId);
+      const oldPins = new Set<string>();
+      if (def) for (const wp of worldPins(m, def)) oldPins.add(holeKey(wp.col, wp.row));
+      m.col = col; m.row = row;
+      for (const t of b.tracks) {
+        if (t.points.length < 2) continue;
+        const a = t.points[0], z = t.points[t.points.length - 1];
+        const aMove = oldPins.has(holeKey(a.col, a.row));
+        const zMove = oldPins.has(holeKey(z.col, z.row));
+        if (!aMove && !zMove) continue;
+        const na = aMove ? { col: a.col + dx, row: a.row + dy } : { col: a.col, row: a.row };
+        const nz = zMove ? { col: z.col + dx, row: z.row + dy } : { col: z.col, row: z.row };
+        t.points = orthoElbow(na, nz);
+      }
+    }),
     rotateModule: (id, dir = 1) =>
       withBoard((b) => {
         const m = b.modules.find((m) => m.id === id);
@@ -237,7 +345,11 @@ export const useStore = create<StoreState>()((set, get) => {
       }),
     finishWire: () => {
       const d = get().wireDraft;
-      if (d && d.points.length >= 2) withBoard((b) => b.tracks.push({ id: uid(), side: d.side, points: d.points }));
+      // Store wires as orthogonal (H/V) polylines only — never diagonal.
+      if (d && d.points.length >= 2) {
+        const points = orthogonalize(d.points);
+        if (points.length >= 2) withBoard((b) => b.tracks.push({ id: uid(), side: d.side, points }));
+      }
       set({ wireDraft: null });
     },
     cancelWire: () => set({ wireDraft: null, railStart: null }),

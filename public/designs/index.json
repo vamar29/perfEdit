@@ -1,0 +1,7 @@
+[
+  {
+    "file": "pip-power.json",
+    "name": "Pip Power (perfboard)",
+    "description": "Two-board module power system for the Pip robot base (PERFBOARD_POWER_DESIGN.md)."
+  }
+]
