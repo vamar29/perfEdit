@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore, Tool } from '../state/store';
 import { exportWorkspaceJson, downloadJson, fetchDesignIndex, fetchDesign, DesignEntry } from '../state/io';
 import { wireLayers } from '../domain/connectivity';
+import { bodyRect, toRenderX } from '../domain/geometry';
 
 const TOOLS: { id: Tool; label: string; title: string }[] = [
   { id: 'select', label: 'Select', title: 'Select / move (V)' },
@@ -29,6 +30,23 @@ export default function Toolbar() {
   );
   const layerIdx = Math.min(s.layerIndex, Math.max(0, layers.length - 1));
   const curCount = layers[layerIdx]?.length ?? 0;
+
+  // Frame ALL content (including off-board parts like the panel power switch),
+  // not just the board grid, so nothing wired in from outside is hidden.
+  const fitContent = () => {
+    if (!board) return;
+    const pitch = workspace.settings.pitchMm || 2.54;
+    const flipped = board.activeSide === 'bottom';
+    const rx = (c: number) => toRenderX(c, board.cols, flipped);
+    let minC = -0.5, maxC = board.cols - 0.5, minR = -1.6, maxR = board.rows - 0.5;
+    const ext = (c: number, r: number) => { const x = rx(c); if (x < minC) minC = x; if (x > maxC) maxC = x; if (r < minR) minR = r; if (r > maxR) maxR = r; };
+    for (const m of board.modules) { const def = workspace.library.find((d) => d.id === m.defId); if (!def) continue; const rr = bodyRect(m, def, pitch); ext(rr.x, rr.y); ext(rr.x + rr.w, rr.y + rr.h); }
+    for (const t of board.tracks) for (const p of t.points) ext(p.col, p.row);
+    for (const io of board.io) ext(io.col, io.row);
+    const availW = window.innerWidth - 380, availH = window.innerHeight - 150;
+    const scale = Math.max(6, Math.min(48, Math.floor(Math.min(availW / (maxC - minC + 2), availH / (maxR - minR + 2)))));
+    s.setCamera({ scale, panX: 220 - minC * scale, panY: 96 - minR * scale });
+  };
 
   const applyImport = (data: unknown, source: string) => {
     const res = s.importData(data);
@@ -107,7 +125,7 @@ export default function Toolbar() {
           </div>
 
           <div className="group">
-            <button onClick={() => s.setCamera({ scale: 24, panX: 70, panY: 70 })}>Reset view</button>
+            <button title="Frame the whole board and any off-board parts" onClick={fitContent}>Fit all</button>
           </div>
         </>
       )}

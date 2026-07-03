@@ -26,11 +26,18 @@ function orthogonalize(points) {
   for (let i=1;i<points.length;i++){ const p=out[out.length-1], c=points[i]; if (p.col!==c.col&&p.row!==c.row) push({col:c.col,row:p.row}); push(c); }
   return out;
 }
-const X = (h) => (h + 2) * S, Y = (h) => (h + 2) * S;
-
 for (const b of ws.boards) {
   if (!b.id.startsWith('pip')) continue;
-  const W = (b.cols + 4) * S, H = (b.rows + 5) * S;
+  // Content bounds — include OFF-BOARD components/wires (negative coords etc.),
+  // so panel-mounted parts wired in from outside the board still render.
+  let minC = -0.5, maxC = b.cols - 0.5, minR = -2, maxR = b.rows - 0.5;
+  const ext = (c, r) => { if (c < minC) minC = c; if (c > maxC) maxC = c; if (r < minR) minR = r; if (r > maxR) maxR = r; };
+  for (const m of b.modules) { const def = defMap.get(m.defId); const r = bodyRect(m, def); ext(r.x, r.y); ext(r.x + r.w, r.y + r.h); for (const pn of def.pins) { const o = rotOff(pn.col, pn.row, m.rotation, def.cols, def.rows); ext(m.col + o.col, m.row + o.row); } }
+  for (const t of b.tracks) for (const p of t.points) ext(p.col, p.row);
+  for (const io of b.io) ext(io.col, io.row);
+  for (const a of b.annotations) ext(a.col, a.row);
+  const X = (h) => (h - minC + 2) * S, Y = (h) => (h - minR + 2) * S;
+  const W = (maxC - minC + 4) * S + 300, H = (maxR - minR + 4) * S; // +300px slack for right-running text
   const el = [`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="ui-sans-serif,system-ui,sans-serif">`];
   el.push(`<rect x="0" y="0" width="${W}" height="${H}" fill="#f8fafc"/>`);
   el.push(`<rect x="${X(-0.5)}" y="${Y(-0.5)}" width="${b.cols*S}" height="${b.rows*S}" fill="#0e7a5f" stroke="#0b3d2e"/>`);

@@ -85,8 +85,8 @@ const DEFS = {
   tps61088: {
     id: 'def_tps61088', name: 'TPS61088 boost (ADJ→4.85V)', designatorPrefix: 'U', color: '#f59e0b',
     cols: 3, rows: 16, bodyMm: cbody(21, 40, 3, 16),
-    notes: '21×40mm generic board, ~$4–8. In 2.7–12V; ~3.7A cont @5V from a 3.0V cell (18.9W). Leave 5/9/12V pads OPEN, set ADJ to measured-buck −0.15V (≈4.85V). Stick-on heatsink, 5mm clearance.',
-    pins: [pin(0,0,'power','VIN+','from P+'), pin(2,0,'ground','VIN-'), pin(0,15,'output','VOUT+','4.85V'), pin(2,15,'ground','VOUT-')],
+    notes: '21×40mm generic board, ~$4–8. In 2.7–12V; ~3.7A cont @5V from a 3.0V cell (18.9W). Leave 5/9/12V pads OPEN, set ADJ to measured-buck −0.15V (≈4.85V). Stick-on heatsink, 5mm clearance. EN is GATED (pull-down + Pi GPIO) so the boost only runs when the Pi has already booted on wall power — the battery is a WARNING backup, NOT a way to power on unplugged.',
+    pins: [pin(0,0,'power','VIN+','from P+'), pin(2,0,'ground','VIN-'), pin(0,8,'input','EN','wall-armed'), pin(0,15,'output','VOUT+','4.85V'), pin(2,15,'ground','VOUT-')],
   },
   ada4410: {
     id: 'def_ada4410', name: 'Adafruit 4410 charger (MCP73831)', designatorPrefix: 'U', color: '#06b6d4',
@@ -123,6 +123,24 @@ const DEFS = {
     cols: 2, rows: 1, bodyMm: cbody(7.9, 5.8, 2, 1), mayOverhang: true,
     notes: '0.5A-class interconnect.',
     pins: [pin(0,0,'passive','1'), pin(1,0,'passive','2')],
+  },
+  dpst: {
+    id: 'def_dpst', name: 'DPST rocker power switch (KCD2)', designatorPrefix: 'SW', color: '#e11d48',
+    cols: 3, rows: 2, bodyMm: cbody(21, 15, 3, 2), mayOverhang: true,
+    notes: 'Panel-mounted rocker (KCD2/KCD4 class, >=10A), ~$4. MOUNTS OFF THE BOARD in the base back face; joins the board by flying wires (shown outside the board at left). Pole 1 = 20V bus on/off; Pole 2 = LiPo->boost cutoff on Board B; GND is not switched. "Off" kills both the bus and the battery path.',
+    pins: [pin(0,0,'passive','P1a'), pin(0,1,'passive','P1b'), pin(2,0,'passive','P2a'), pin(2,1,'passive','P2b')],
+  },
+  usbc: {
+    id: 'def_usbc', name: 'USB-C receptacle (panel, breakout)', designatorPrefix: 'J', color: '#0891b2',
+    cols: 4, rows: 1, bodyMm: cbody(9, 10, 4, 1), mayOverhang: true,
+    notes: 'Panel-mount USB-C receptacle in the base back face = the wall port. SEPARATE from the PD trigger; joined by a short cable carrying VBUS + GND + CC1 + CC2. ~$3.',
+    pins: [pin(0,0,'power','VBUS'), pin(1,0,'passive','CC1'), pin(2,0,'passive','CC2'), pin(3,0,'ground','GND')],
+  },
+  zy12pdn: {
+    id: 'def_zy12pdn', name: 'ZY12PDN PD trigger (set 20V)', designatorPrefix: 'U', color: '#7c3aed',
+    cols: 4, rows: 4, bodyMm: cbody(30, 15, 4, 4),
+    notes: 'USB-C PD trigger, button-select to 20V (100W: 20V/5A), ~$6. Mounts ON the board (internal); a cable from the panel USB-C receptacle (J8) feeds its VBUS/GND/CC. Output = the 20V bus -> 5A fuse -> DPST switch (SW1) -> J1.',
+    pins: [pin(0,0,'power','VBUS','from USB-C'), pin(0,1,'passive','CC1'), pin(0,2,'passive','CC2'), pin(0,3,'ground','GNDin'), pin(3,0,'output','V20','20V out'), pin(3,3,'ground','GNDo')],
   },
   capD13: {
     id: 'def_capD13', name: 'Electrolytic Ø13 (5mm LS)', designatorPrefix: 'C', color: '#334155',
@@ -222,6 +240,14 @@ A.place('xt30', 20, 27, 'J2', 0, '6V_OUT');
 A.place('xt30', 25, 27, 'J3', 0, 'VMOT_20V');
 A.place('xt30', 30, 27, 'J4', 0, '5V_OUT');
 A.place('xt30', 35, 27, 'J5', 0, 'BOOST_IN');
+// FRONT-END: only the USB-C port (J8) and the POWER switch (SW1) are OFF the board
+// (panel-mounted on the base back face). The PD trigger (U3) is ON the board; a cable
+// from the panel USB-C feeds it, and its switched 20V returns to J1.
+//   panel USB-C (J8, off) --cable(VBUS/GND/CC)--> U3 PD trigger (ON board)
+//   U3 --20V(+5A fuse)--> DPST switch (SW1, off) --> J1 (board 20V entry)
+A.place('zy12pdn', 28, 19, 'U3', 0, 'PD TRIG'); // PD trigger — ON the board (internal)
+A.place('usbc',    -31, 4, 'J8', 0, 'USB-C');   // panel wall port (off-board), cabled to U3
+A.place('dpst',     -8, 4, 'SW1', 0, 'POWER');  // DPST power switch (off-board panel)
 
 // nets
 A.net('netA_20v', '20V_BUS', '#f97316', 'power');
@@ -234,6 +260,10 @@ A.net('netA_div', 'DIV', '#84cc16', 'signal');
 A.net('netA_sense', 'WALL_SENSE', '#22c55e', 'signal');
 A.net('netA_led5', 'LED5', '#94a3b8', 'signal');
 A.net('netA_led6', 'LED6', '#94a3b8', 'signal');
+A.net('netA_20vsrc', '20V_SRC', '#fb923c', 'power');   // trigger V20 -> switch (before the switch)
+A.net('netA_usbvbus', 'USB_VBUS', '#06b6d4', 'power'); // USB-C cable VBUS -> trigger
+A.net('netA_cc1', 'CC1', '#a3e635', 'signal');         // USB-C CC lines (PD negotiation) -> trigger
+A.net('netA_cc2', 'CC2', '#a3e635', 'signal');
 
 A.wire('netA_20v', '#f97316', true, ['J1.+', 'C1.+', 'U1.VIN']);
 A.wire('netA_20v', '#f97316', true, ['U1.VIN', 'U2.VIN']);
@@ -257,9 +287,20 @@ A.wire('netA_div', '#84cc16', false, ['R1.2', 'R2.1', 'R3.1', 'C5.1']);
 A.wire('netA_sense', '#22c55e', false, ['R3.2', 'J7.1']);
 A.wire('netA_led5', '#94a3b8', false, ['D3.K', 'R4.1']);
 A.wire('netA_led6', '#94a3b8', false, ['D4.K', 'R5.1']);
-A.io('input', 0, 4, 'USB-C PD 20V (via trigger+fuse+DPST)');
+// --- front-end (off-board) flying-wire hookup ---
+// USB-C receptacle --cable--> PD trigger
+A.wire('netA_usbvbus', '#06b6d4', false, ['J8.VBUS', 'U3.VBUS']); // VBUS
+A.wire('netA_cc1',     '#a3e635', false, ['J8.CC1',  'U3.CC1']);  // CC1 (PD negotiation)
+A.wire('netA_cc2',     '#a3e635', false, ['J8.CC2',  'U3.CC2']);  // CC2
+A.wire('netA_gnd',     '#111827', false, ['J8.GND',  'U3.GNDin']);// cable GND
+// PD trigger --20V (5A fuse) --> switch pole 1 --> board
+A.wire('netA_20vsrc', '#fb923c', false, ['U3.V20', 'SW1.P1a']);  // 20V (via 5A fuse) -> pole 1 in
+A.wire('netA_20v',    '#f97316', true,  ['SW1.P1b', 'J1.+']);     // pole 1 out -> board 20V entry (J1)
+A.wire('netA_gnd',    '#111827', false, ['U3.GNDo', 'J1.-']);     // trigger GND -> board GND (NOT switched)
 A.io('output', 33, 0, '5V_CHG -> Board B');
-A.note('BOARD A - wall & rails. Trigger + 5A fuse + DPST rocker are panel-mounted (off-board).', 0, -1.6, '#0f172a');
+A.note('BOARD A - wall & rails. Only the USB-C port (J8) and POWER switch (SW1) are OFF the board (panel-mounted); the PD trigger U3 is ON the board. Chain: USB-C (J8) -> cable -> U3 PD trigger -> 5A fuse -> DPST POWER switch (SW1) -> J1.', 0, -1.6, '#0f172a');
+A.note('USB-C port (J8, off-board panel) is cabled (VBUS+GND+CC1+CC2) to U3 on the board. 5A fuse sits inline on U3.V20 -> SW1.', -31, 1.5, '#0891b2');
+A.note('SW1 = POWER button (off-board panel). Pole 1 switches the 20V bus on/off. "Off" kills the 20V bus -> Pi loses power -> boost EN drops (see Board B) -> battery isolated too. Spare 2nd pole = optional hard LiPo cutoff.', -13, 8.5, '#e11d48');
 A.note('Real footprints need ~36x30 holes (~91x76mm) - larger than the doc 50x70mm. Options: bigger boards, a 3-board split, or smaller bucks (DROK 6A sync). Re-check vs the O130 bay annulus.', 0, 30.4, '#b91c1c');
 A.note('J6 5V_CHG -> Board B charger; J5 BOOST_IN <- Board B. GND common across both boards.', 0, 31.6, '#334155');
 
@@ -276,6 +317,7 @@ B.place('trim', 21, 25, 'RV1', 0, '200k ADJ');
 B.place('xt30', 24, 19, 'J2', 90, 'BOOST_5V');
 B.place('jstxh2', 1, 21, 'J3', 0, '5V_CHG_IN');
 B.place('jstxh2', 1, 24, 'J4', 0, 'STAT/GND');
+B.place('res', 6, 28, 'R1', 0, '100k PD');           // boost-EN pull-down: keeps the boost OFF at cold start
 
 B.net('netB_cell', 'VBAT_CELL', '#eab308', 'power');
 B.net('netB_prot', 'VBAT_PROT', '#f59e0b', 'power');
@@ -283,6 +325,7 @@ B.net('netB_gnd', 'GND', '#111827', 'ground');
 B.net('netB_chg', '5V_CHG', '#14b8a6', 'power');
 B.net('netB_boost', 'BOOST_5V', '#ec4899', 'power');
 B.net('netB_stat', 'CHG_STAT', '#22c55e', 'signal');
+B.net('netB_boosten', 'BOOST_EN', '#f472b6', 'signal'); // gated boost enable (Pi GPIO, wall-armed)
 
 B.wire('netB_cell', '#eab308', true, ['J1.+', 'U1.B+']);
 B.wire('netB_gnd', '#111827', true, ['J1.-', 'U1.B-']);
@@ -294,9 +337,15 @@ B.wire('netB_gnd', '#111827', false, ['J3.2', 'J4.2']);
 B.wire('netB_stat', '#22c55e', false, ['U2.STAT', 'J4.1']);
 B.wire('netB_boost', '#ec4899', true, ['U3.VOUT+', 'J2.+']);
 B.wire('netB_boost', '#ec4899', false, ['U3.VOUT+', 'RV1.3']); // ADJ sample (illustrative)
+// boost ENABLE gating: pull-down holds it OFF; Pi GPIO drives it high (only after booting on wall)
+B.wire('netB_boosten', '#f472b6', false, ['U3.EN', 'R1.1']);   // EN + pull-down node
+B.wire('netB_gnd',     '#111827', false, ['R1.2', 'J4.2']);    // pull-down R1 to GND
+B.wire('netB_boosten', '#f472b6', false, ['U3.EN', [1, 27]]);  // Pi GPIO (BOOST_EN) controls the enable
 B.io('input', 0, 19, '5V_CHG <- Board A');
+B.io('input', 1, 27, 'BOOST_EN <- Pi GPIO (wall-armed)');
 B.io('output', 25, 20, 'BOOST_5V -> Board A');
 B.note('BOARD B - battery. LiPo pouch 67x34x6 lies BESIDE the board (Velcro + foam), 7.5A fuse inline in the + lead. Keep the cell >=25mm from any converter.', 0, -1.6, '#b91c1c');
+B.note('U3 boost EN is GATED: R1 pulls it LOW so the boost stays OFF until the Pi (booted on WALL) drives BOOST_EN high. Robot CANNOT power on from the battery when unplugged; the LiPo only rides a wall-loss so the Pi can WARN (~min) then shut down.', 0, 30.6, '#be185d');
 
 // ============================================================
 // Buck fit comparison — why the placed design uses the Pololu

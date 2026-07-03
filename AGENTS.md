@@ -77,6 +77,15 @@ Most real modules are **larger than the holes their pins land on** (e.g. a Polol
 The Module Designer UI exposes all of this ("Physical body size (mm)" section); scripts set
 it directly.
 
+### Off-board components
+A part can be placed **outside the board** — at negative `col`/`row` or beyond `cols`/`rows` — to
+represent something panel-mounted (a power switch, a jack) that connects to the board by flying
+wires. Give it `mayOverhang: true` so the edge check doesn't flag it, place it in the empty space
+beside the board, and wire its pins to on-board holes with normal tracks (a track endpoint may be
+an off-board hole). The SVG renderer auto-expands to include off-board content, and the toolbar's
+**"Fit all"** frames the board plus anything off it. Example: `SW1` (the DPST power switch) in the
+Pip design sits at negative columns left of Board A, wired to `J1` (the 20 V entry).
+
 ---
 
 ## 3. Rotation (must match the app exactly)
