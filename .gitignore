@@ -7,4 +7,6 @@ dist
 # The app reads this folder at runtime (see src/state/io.ts); it is absent from
 # a fresh clone and the loader degrades to an empty workspace. Drop a design
 # folder in here (index.json + <name>.json) and every board auto-loads.
-public/designs/
+# On this machine it's a symlink to the evedesign repo (the source of record);
+# no trailing slash so the rule ignores the symlink itself, not just a real dir.
+public/designs
