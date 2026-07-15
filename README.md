@@ -26,17 +26,29 @@ Opens in your browser. Everything auto-saves to browser storage and reloads next
 - Flip board (F) — track side is a horizontal mirror; bodies ghost, pins stay solid, labels stay readable
 - Coordinate rulers (A/B/C… + row numbers)
 - Hover a hole to highlight everything electrically connected; live error checks (power/ground shorts, pin/body overlaps, **body past board edge**, **wires running on top of each other**) in the Issues panel — **click an issue to highlight the exact wires/modules involved**
-- **Import / Export** whole workspaces as JSON (merge-by-id); **bundled designs in `public/designs` auto-load on startup** so every board is in the toolbar menu (also loadable via the toolbar or `?design=<name>`); `?fresh=1` for a clean deterministic start
+- **Import / Export** whole workspaces as JSON (merge-by-id); **any designs present in `public/designs` auto-load on startup** so every board is in the toolbar menu (also loadable via the toolbar or `?design=<name>`); `?fresh=1` for a clean deterministic start
 - Undo/redo, zoom/pan (wheel = pan, ⌘/pinch = zoom)
 
-## Bundled design: Pip robot power system
+## Designs (`public/designs/`)
 
-`public/designs/pip-power.json` is a worked example — the two-board module power supply for the "Pip" robot (Board A rails, Board B battery, plus a buck-size comparison board). Open `/?fresh=1&design=pip-power`.
+Board designs are **private and not part of this repo** — `public/designs/` is gitignored, so a
+fresh clone ships the editor with no boards and starts on an empty workspace.
+
+To use your own designs, create the folder and drop them in:
+
+```
+public/designs/
+  index.json          # [{ file, name, description? }] — the registry the app reads
+  <name>.json         # a design: { schemaVersion?, library?, boards? }
+```
+
+Everything listed in `index.json` auto-loads on startup, so each board appears in the toolbar's
+board dropdown (also selectable via `?design=<name>`; `?fresh=1` for a clean deterministic start).
+See [`AGENTS.md`](AGENTS.md) §5 for the file shape and §7 for generating a design programmatically.
 
 ```bash
-node scripts/build-pip-power.mjs   # regenerate the design JSON (self-checks geometry first)
-node scripts/render-svg.mjs        # -> public/designs/<board>.svg (standalone pictures)
-node scripts/render-ascii.mjs      # one-char-per-hole text maps for a quick check
+node scripts/render-svg.mjs <path/to/design.json>   # -> public/designs/<board>.svg (standalone pictures)
+node scripts/render-ascii.mjs                        # one-char-per-hole text maps for a quick check
 ```
 
 ## Stack

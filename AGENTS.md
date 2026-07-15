@@ -197,6 +197,10 @@ Put a design file at `public/designs/<name>.json`. Shape is a workspace subset:
 `public/designs/index.json` as `[{ file, name, description? }]` so it shows in the **Designs…**
 toolbar dropdown.
 
+> `public/designs/` is **gitignored** — real designs are private and never committed here. The
+> folder is absent from a fresh clone; the loader treats a missing `index.json` as "no designs"
+> and starts empty. Dropping a design folder in at that path is all that's needed to load it.
+
 **Auto-load on startup:** every design listed in `index.json` is imported automatically on app
 launch, so all boards appear in the toolbar's board dropdown without the user opening a file.
 It's **import-once** — a file is only auto-imported the first time it's seen (tracked in
@@ -206,12 +210,12 @@ launch. Add a new file to `index.json` and it shows up on the next load.
 **URL params** (`src/state/persistence.ts`, `src/main.tsx`):
 - `?design=<name>` — also select that design's first board (it's auto-loaded regardless).
 - `?fresh=1` — start from an empty default workspace (clears local storage first), then the
-  auto-loader re-imports the full design set. `/?fresh=1&design=pip-power` = deterministic view.
+  auto-loader re-imports the full design set. `/?fresh=1&design=<name>` = deterministic view.
 
 **Import is merge-by-id** (`src/state/io.ts`): entries whose `id` already exists are replaced,
 new ids appended. So **use stable, deterministic ids** in generated files — re-running your
-generator and re-importing updates in place instead of duplicating. (This is why the Pip
-generator uses ids like `mod_pip_boardA_U1`, not random uuids.)
+generator and re-importing updates in place instead of duplicating. (E.g. derive them from the
+design + board + refdes, like `mod_<design>_<board>_U1`, rather than random uuids.)
 
 Import is **validated** before it touches the workspace; on failure nothing changes and you
 get a list of precise errors (bad pin coords, unknown `defId`, dangling `netId`, …). Malformed
@@ -241,16 +245,16 @@ a design is clean (`[]`), or to read back the intended warnings.
 
 ## 7. Build a design from scratch (recommended recipe)
 
-1. Write a Node ESM generator in `scripts/` (see `scripts/build-pip-power.mjs` as the worked
-   example). Define module defs, place instances with explicit `(col,row,rotation)`, wire by
-   **pin name** (resolve names → world holes with the §3 rotation), emit
-   `public/designs/<name>.json` + update `index.json`.
-2. **Self-check before writing.** The example script mirrors the app's geometry + connectivity
-   and refuses to emit on: two pins on one hole, physical-body overlap (via `bodyMm`), body
-   past a board edge (unless `mayOverhang`), or a power/ground short. Iterate against its
+1. Write a Node ESM generator and keep it **beside the design** in `public/designs/` (gitignored —
+   a generator encodes the whole layout, so it is design data, not tooling). Define module defs,
+   place instances with explicit `(col,row,rotation)`, wire by **pin name** (resolve names → world
+   holes with the §3 rotation), emit `public/designs/<name>.json` + update `index.json`.
+2. **Self-check before writing.** Mirror the app's geometry + connectivity in the generator and
+   refuse to emit on: two pins on one hole, physical-body overlap (via `bodyMm`), body
+   past a board edge (unless `mayOverhang`), or a power/ground short. Iterate against that
    report — let the checker place things, don't eyeball coordinates.
-3. `node scripts/build-pip-power.mjs` → clean (0 errors; intended warnings are fine).
-4. `node scripts/render-svg.mjs` → `public/designs/<boardId>.svg` per board — a standalone
+3. `node public/designs/<your-generator>.mjs` → clean (0 errors; intended warnings are fine).
+4. `node scripts/render-svg.mjs <path/to/design.json>` → `public/designs/<boardId>.svg` per board — a standalone
    picture to eyeball (or convert: `qlmanage -t -s 1200 -o /tmp file.svg`). `render-ascii.mjs`
    prints a one-char-per-hole map for a fast text check.
 5. Load in-app: `npm run dev`, open `/?fresh=1&design=<name>`, and/or

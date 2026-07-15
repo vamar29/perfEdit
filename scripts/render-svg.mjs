@@ -1,15 +1,20 @@
-// Renders each pip board in a design JSON to a standalone SVG (openable in any
+// Renders each board in a design JSON to a standalone SVG (openable in any
 // browser / image viewer — no app needed). Mirrors the app's render: bodies as
 // filled rounded rects, pins colored by type, tracks by net color, labels,
 // annotations. Useful as a shareable snapshot and as agent-side verification.
-//   node scripts/render-svg.mjs [path-to-design.json]
+//   node scripts/render-svg.mjs <path-to-design.json>
+// Writes public/designs/<boardId>.svg (beside the design).
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const P = 2.54, S = 16; // px per hole
-const src = process.argv[2] || join(HERE, '..', 'public', 'designs', 'pip-power.json');
+const src = process.argv[2];
+if (!src) {
+  console.error('usage: node scripts/render-svg.mjs <path-to-design.json>');
+  process.exit(1);
+}
 const ws = JSON.parse(readFileSync(src, 'utf8'));
 const defMap = new Map(ws.library.map((d) => [d.id, d]));
 

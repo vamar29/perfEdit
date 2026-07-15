@@ -2,3 +2,9 @@ node_modules
 dist
 .DS_Store
 *.log
+
+# Private board designs — real layouts + their generators are NOT public.
+# The app reads this folder at runtime (see src/state/io.ts); it is absent from
+# a fresh clone and the loader degrades to an empty workspace. Drop a design
+# folder in here (index.json + <name>.json) and every board auto-loads.
+public/designs/

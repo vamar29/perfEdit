@@ -1,14 +1,16 @@
-// Renders public/designs/pip-power.json as ASCII maps (one char per hole) so a
-// layout can be eyeballed without a browser. Body cells = lowercase tag, pin
-// cells = UPPERCASE, edge-overhang cells = '*'. Also prints per-board issues.
-//   node scripts/render-ascii.mjs
+// Renders a design JSON as ASCII maps (one char per hole) so a layout can be
+// eyeballed without a browser. Body cells = lowercase tag, pin cells =
+// UPPERCASE, edge-overhang cells = '*'. Also prints per-board issues.
+//   node scripts/render-ascii.mjs <path-to-design.json>
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
 
-const HERE = dirname(fileURLToPath(import.meta.url));
 const P = 2.54;
-const ws = JSON.parse(readFileSync(join(HERE, '..', 'public', 'designs', 'pip-power.json'), 'utf8'));
+const src = process.argv[2];
+if (!src) {
+  console.error('usage: node scripts/render-ascii.mjs <path-to-design.json>');
+  process.exit(1);
+}
+const ws = JSON.parse(readFileSync(src, 'utf8'));
 const defMap = new Map(ws.library.map((d) => [d.id, d]));
 
 const rotOff = (c, r, rot, W, H) => rot === 90 ? { col: H-1-r, row: c } : rot === 180 ? { col: W-1-c, row: H-1-r } : rot === 270 ? { col: r, row: W-1-c } : { col: c, row: r };
